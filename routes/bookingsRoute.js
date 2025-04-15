@@ -127,4 +127,38 @@ router.get("/getallbookings", async (req, res) => {
   }
 });
 
+
+// Cancel a booking
+router.post('/cancelbooking', async (req, res) => {
+  const { bookingid, roomid } = req.body;
+
+  try {
+    // Find and update booking status
+    const booking = await Booking.findById(bookingid);
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    booking.status = 'cancelled';
+    await booking.save();
+
+    // Remove the booking from room's currentbookings
+    const room = await Room.findById(roomid);
+    if (!room) {
+      return res.status(404).json({ error: "Room not found" });
+    }
+
+    room.currentbookings = room.currentbookings.filter(
+      (b) => b.bookingid.toString() !== bookingid
+    );
+
+    await room.save();
+
+    res.send({ success: true, message: "Booking cancelled successfully" });
+  } catch (error) {
+    console.error("Cancel booking failed:", error);
+    res.status(500).json({ error: "Failed to cancel booking" });
+  }
+});
+
 module.exports = router;
