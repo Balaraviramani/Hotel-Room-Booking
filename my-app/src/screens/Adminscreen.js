@@ -1,274 +1,212 @@
-import React, { useEffect, useState } from 'react'
-import { Tabs } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Tabs, Card, Table, Tag, Form, Input, Button, Select } from 'antd';
 import axios from 'axios';
 import Loader from '../components/Loader';
 import Error from '../components/Error';
 import Swal from 'sweetalert2';
+import {
+    UserOutlined,
+    HomeOutlined,
+    PlusOutlined,
+    BookOutlined,
+} from '@ant-design/icons';
+
+const { Option } = Select;
 
 function Adminscreen() {
-
     useEffect(() => {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
         if (!currentUser || !currentUser.isAdmin) {
             window.location.href = '/home';
         }
     }, []);
-    
+
     return (
-        <div className='mt-3 ml-3 mr-3 bs '>
-            <h2 className='text-center' style={{ fontSize: '30px' }}><b>Admin</b></h2>
+        <div className='mt-3 ml-3 mr-3'>
+            <h2 className='text-center' style={{ fontSize: '30px' }}><b>Admin Panel</b></h2>
             <Tabs
                 defaultActiveKey="1"
+                type="card"
+                size="large"
+                centered
                 items={[
-                    { key: '1', label: 'Bookings', children: <Bookings /> },
-                    { key: '2', label: 'Rooms', children: <Rooms /> },
-                    { key: '3', label: 'Add Rooms', children: <AddRoom /> },
-                    { key: '4', label: 'Users', children: <Users /> },
+                    {
+                        key: '1',
+                        label: (
+                            <span><BookOutlined /> Bookings</span>
+                        ),
+                        children: <Card><Bookings /></Card>,
+                    },
+                    {
+                        key: '2',
+                        label: (
+                            <span><HomeOutlined /> Rooms</span>
+                        ),
+                        children: <Card><Rooms /></Card>,
+                    },
+                    {
+                        key: '3',
+                        label: (
+                            <span><PlusOutlined /> Add Room</span>
+                        ),
+                        children: <Card><AddRoom /></Card>,
+                    },
+                    {
+                        key: '4',
+                        label: (
+                            <span><UserOutlined /> Users</span>
+                        ),
+                        children: <Card><Users /></Card>,
+                    },
                 ]}
             />
         </div>
-    )
+    );
 }
-
-// Rooms List Component
-
-export function Rooms() {
-    const [rooms, setrooms] = useState([]);
-    const [loading, setloading] = useState(true);
-    const [error, seterror] = useState(false);
-    useEffect(() => {
-        const fetchRooms = async () => {
-            try {
-                const { data } = await axios.get('/api/rooms/getallrooms');
-                setrooms(data);
-                setloading(false);
-            } catch (error) {
-                console.log(error);
-                setloading(false);
-                seterror(error);
-            }
-        };
-
-        fetchRooms();
-    }, []);
-
-    return (
-        <div className='row'>
-            <div className='col-md-12'>
-                <h1>Rooms</h1>
-                {loading && <Loader />}
-                <table className='table table-bordered table-dark'>
-                    <thead className='bs'>
-                        <tr>
-                            <th>Room Id</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Rent per day</th>
-                            <th>Max Count </th>
-                            <th>Phone Number</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rooms.length > 0 && rooms.map(room => (
-                            <tr key={room._id}>
-                                <td>{room._id}</td>
-                                <td>{room.name}</td>
-                                <td>{room.type}</td>
-                                <td>{room.rentperday}</td>
-                                <td>{room.maxcount}</td>
-                                <td>{room.phonenumber}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    )
-}
-
-// Bookings List Component
 
 export function Bookings() {
     const [bookings, setbookings] = useState([]);
     const [loading, setloading] = useState(true);
-    const [error, seterror] = useState(false);
+
     useEffect(() => {
-        const fetchBookings = async () => {
+        async function fetchBookings() {
             try {
                 const { data } = await axios.get('/api/bookings/getallbookings');
                 setbookings(data);
                 setloading(false);
             } catch (error) {
-                console.log(error);
+                console.error(error);
                 setloading(false);
-                seterror(error);
             }
-        };
-
+        }
         fetchBookings();
     }, []);
 
-    return (
-        <div className='row'>
-            <div className='col-md-12'>
-                <h1>Bookings</h1>
-                {loading && <Loader />}
-                <table className='table table-bordered table-dark'>
-                    <thead className='bs'>
-                        <tr>
-                            <th>Booking Id</th>
-                            <th>User Id</th>
-                            <th>Room</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {bookings.length > 0 && bookings.map(booking => (
-                            <tr key={booking._id}>
-                                <td>{booking._id}</td>
-                                <td>{booking.userid}</td>
-                                <td>{booking.room}</td>
-                                <td>{booking.fromdate}</td>
-                                <td>{booking.todate}</td>
-                                <td>{booking.status}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    )
+    const columns = [
+        { title: 'Booking Id', dataIndex: '_id', key: '_id' },
+        { title: 'User Id', dataIndex: 'userid', key: 'userid' },
+        { title: 'Room', dataIndex: 'room', key: 'room' },
+        { title: 'From', dataIndex: 'fromdate', key: 'fromdate' },
+        { title: 'To', dataIndex: 'todate', key: 'todate' },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status) => <Tag color={status === 'cancelled' ? 'volcano' : 'green'}>{status.toUpperCase()}</Tag>,
+        },
+    ];
+
+    return loading ? <Loader /> : <Table dataSource={bookings} columns={columns} rowKey="_id" pagination={{ pageSize: 5 }} />;
 }
 
-// User List Component
+export function Rooms() {
+    const [rooms, setrooms] = useState([]);
+    const [loading, setloading] = useState(true);
+
+    useEffect(() => {
+        async function fetchRooms() {
+            try {
+                const { data } = await axios.get('/api/rooms/getallrooms');
+                setrooms(data);
+                setloading(false);
+            } catch (error) {
+                console.error(error);
+                setloading(false);
+            }
+        }
+        fetchRooms();
+    }, []);
+
+    const columns = [
+        { title: 'Room Id', dataIndex: '_id', key: '_id' },
+        { title: 'Name', dataIndex: 'name', key: 'name' },
+        { title: 'Type', dataIndex: 'type', key: 'type' },
+        { title: 'Rent per day', dataIndex: 'rentperday', key: 'rentperday' },
+        { title: 'Max Count', dataIndex: 'maxcount', key: 'maxcount' },
+        { title: 'Phone Number', dataIndex: 'phonenumber', key: 'phonenumber' },
+    ];
+
+    return loading ? <Loader /> : <Table dataSource={rooms} columns={columns} rowKey="_id" pagination={{ pageSize: 5 }} />;
+}
 
 export function Users() {
     const [users, setusers] = useState([]);
     const [loading, setloading] = useState(true);
-    const [error, seterror] = useState(false);
+
     useEffect(() => {
-        const fetchUsers = async () => {
+        async function fetchUsers() {
             try {
                 const { data } = await axios.get('/api/users/getallusers');
                 setusers(data);
                 setloading(false);
             } catch (error) {
-                console.log(error);
+                console.error(error);
                 setloading(false);
-                seterror(error);
             }
-        };
-
+        }
         fetchUsers();
     }, []);
 
-    return (
-        <div className='row'>
-            <div className='col-md-12'>
-                <h1>Users</h1>
-                {loading && <Loader />}
-                <table className='table table-dark table-bordered'>
-                    <thead>
-                        <tr>
-                            <th>User Id</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Is Admin</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.length > 0 && users.map(user => (
-                            <tr key={user._id}>
-                                <td>{user._id}</td>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                <td>{user.isAdmin ? 'YES' : 'NO'}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    )
-}
+    const columns = [
+        { title: 'User Id', dataIndex: '_id', key: '_id' },
+        { title: 'Name', dataIndex: 'name', key: 'name' },
+        { title: 'Email', dataIndex: 'email', key: 'email' },
+        {
+            title: 'Is Admin',
+            dataIndex: 'isAdmin',
+            key: 'isAdmin',
+            render: (isAdmin) => <Tag color={isAdmin ? 'green' : 'red'}>{isAdmin ? 'YES' : 'NO'}</Tag>,
+        },
+    ];
 
-// Add Room Component
+    return loading ? <Loader /> : <Table dataSource={users} columns={columns} rowKey="_id" pagination={{ pageSize: 5 }} />;
+}
 
 export function AddRoom() {
     const [loading, setloading] = useState(false);
-    const [error, seterror] = useState();
-    const [name, setname] = useState('');
-    const [rentperday, setrentperday] = useState('');
-    const [maxcount, setmaxcount] = useState('');
-    const [description, setdescription] = useState('');
-    const [phonenumber, setphonenumber] = useState('');
-    const [type, settype] = useState('');
-    const [imageurl1, setimageurl1] = useState('');
-    const [imageurl2, setimageurl2] = useState('');
-    const [imageurl3, setimageurl3] = useState('');
+    const [form] = Form.useForm();
 
-    async function addRoom() {
+    async function addRoom(values) {
         const newroom = {
-            name,
-            rentperday,
-            maxcount,
-            description,
-            phonenumber,
-            type,
-            imageurls: [imageurl1, imageurl2, imageurl3] // 👈 THIS is the key change
+            ...values,
+            imageurls: [values.imageurl1, values.imageurl2, values.imageurl3],
         };
-    
+
         try {
             setloading(true);
-            const result = await axios.post('/api/rooms/addroom', newroom);
-            console.log(result.data);
+            await axios.post('/api/rooms/addroom', newroom);
             setloading(false);
             Swal.fire('Success', 'Room added successfully', 'success').then(() => {
-                window.location.href = '/home'; 
-              });
-              
+                window.location.href = '/home';
+            });
         } catch (error) {
-            console.log(error);
             setloading(false);
             Swal.fire('Error', 'Failed to add room', 'error');
         }
     }
-    
-    return (
-        <div className='row'>
-            <div className='col-md-5'>
-           
-            <h1> Add Room</h1>
-            {loading && <Loader />}  
-            
-                <input type='text' className='form-control' placeholder='Room Name'
-                    value={name} onChange={(e) => { setname(e.target.value) }} />
-                <input type='text' className='form-control' placeholder='rent per day'
-                    value={rentperday} onChange={(e) => (setrentperday(e.target.value))} />
-                <input type='text' className='form-control' placeholder='max count'
-                    value={maxcount} onChange={(e) => (setmaxcount(e.target.value))} />
-                <input type='text' className='form-control' placeholder='description'
-                    value={description} onChange={(e) => (setdescription(e.target.value))} />
-                <input type='text' className='form-control' placeholder='phone number'
-                    value={phonenumber} onChange={(e) => (setphonenumber(e.target.value))} />
-            </div>
-            <div>
-                <input type='text' className='form-control' placeholder='type'
-                    value={type} onChange={(e) => { settype(e.target.value) }} />
-                <input type='text' className='form-control' placeholder='image URL 1'
-                    value={imageurl1} onChange={(e) => { setimageurl1(e.target.value) }} />
-                <input type='text' className='form-control' placeholder='image URL 2'
-                    value={imageurl2} onChange={(e) => { setimageurl2(e.target.value) }} />
-                <input type='text' className='form-control' placeholder='image URL 3'
-                    value={imageurl3} onChange={(e) => { setimageurl3(e.target.value) }} />
 
-                <button className='btn btn-primary mt-3' onClick={addRoom}>Add Room</button>
-            </div>
-        </div>
-    )
+    return (
+        <>
+            {loading && <Loader />}
+            <Form
+                layout="vertical"
+                form={form}
+                onFinish={addRoom}
+                initialValues={{ type: 'delux' }}
+            >
+                <Form.Item label="Room Name" name="name" rules={[{ required: true }]}> <Input /> </Form.Item>
+                <Form.Item label="Rent per day" name="rentperday" rules={[{ required: true }]}> <Input /> </Form.Item>
+                <Form.Item label="Max Count" name="maxcount" rules={[{ required: true }]}> <Input /> </Form.Item>
+                <Form.Item label="Description" name="description" rules={[{ required: true }]}> <Input.TextArea rows={3} /> </Form.Item>
+                <Form.Item label="Phone Number" name="phonenumber" rules={[{ required: true }]}> <Input /> </Form.Item>
+                <Form.Item label="Type" name="type" rules={[{ required: true }]}> <Select> <Option value="delux">Delux</Option> <Option value="non-delux">Non-Delux</Option> </Select> </Form.Item>
+                <Form.Item label="Image URL 1" name="imageurl1" rules={[{ required: true }]}> <Input /> </Form.Item>
+                <Form.Item label="Image URL 2" name="imageurl2"> <Input /> </Form.Item>
+                <Form.Item label="Image URL 3" name="imageurl3"> <Input /> </Form.Item>
+                <Form.Item> <Button type="primary" htmlType="submit">Add Room</Button> </Form.Item>
+            </Form>
+        </>
+    );
 }
 
 export default Adminscreen;

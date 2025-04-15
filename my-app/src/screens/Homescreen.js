@@ -3,9 +3,10 @@ import axios from 'axios';
 import Rooms from '../components/Rooms';
 import Loader from '../components/Loader';
 import Error from '../components/Error';
-import { DatePicker } from "antd";
-
+import { DatePicker, Input, Select, Row, Col, Typography } from 'antd';
 const { RangePicker } = DatePicker;
+const { Option } = Select;
+const { Title } = Typography;
 
 function formatDate(date) {
   return date.toLocaleDateString('en-GB').split('/').join('-'); // DD-MM-YYYY
@@ -60,11 +61,7 @@ function Homescreen() {
         const bookingFrom = parseDate(booking.fromdate);
         const bookingTo = parseDate(booking.todate);
 
-        // Check overlap
-        if (
-          from <= bookingTo &&
-          to >= bookingFrom
-        ) {
+        if (from <= bookingTo && to >= bookingFrom) {
           isAvailable = false;
           break;
         }
@@ -78,67 +75,75 @@ function Homescreen() {
     setRooms(tempRooms);
   }
 
-  function filterBySearch() {
-    const tempRooms = duplicaterooms.filter((room) =>
-      room.name.toLowerCase().includes(searchkey.toLowerCase())
-    );
+  function filterBySearch(e) {
+    const keyword = e.target.value;
+    setsearchkey(keyword);
 
+    const tempRooms = duplicaterooms.filter((room) =>
+      room.name.toLowerCase().includes(keyword.toLowerCase())
+    );
     setRooms(tempRooms);
   }
 
-  function filterByType(e) {
-    settype(e);
-    if (e !== 'all') {
+  function filterByType(value) {
+    settype(value);
+
+    if (value !== 'all') {
       const tempRooms = duplicaterooms.filter(
-        (room) => room.type.toLowerCase() === e.toLowerCase()
+        (room) => room.type.toLowerCase() === value.toLowerCase()
       );
       setRooms(tempRooms);
     } else {
       setRooms(duplicaterooms);
     }
   }
-  
 
   return (
-    <div className="container">
-      <div className='row mt-5 bs'>
-        <div className='col-md-3'>
-          <RangePicker format='DD-MM-YYYY' onChange={filterByDate} />
-        </div>
-      
+    <div className="container mt-5">
+      <Title level={3} className="text-center mb-4">Search Rooms</Title>
 
-      <div className='col-md-5'>
-        <input type='text' className='form-control' placeholder='search rooms' 
-        value={searchkey} onChange={
-          (e) => {
-            setsearchkey(e.target.value)}} onKeyUp={filterBySearch}
-        />
-      </div>
+      <Row gutter={[16, 16]} justify="center">
+        <Col xs={24} sm={12} md={6}>
+          <RangePicker format="DD-MM-YYYY" onChange={filterByDate} className="w-100" />
+        </Col>
 
-      <div className='col-md-3'>
-      <select className='form-control' value={type} onChange={(e) => {filterByType(e.target.value)}}> 
-        <option value='all'>All</option>
-        <option value='delux'>Delux</option>
-        <option value='non-delux'>Non-Delux</option>
-      </select>
-      </div>
-      
-      </div>
+        <Col xs={24} sm={12} md={6}>
+          <Input
+            placeholder="Search rooms"
+            value={searchkey}
+            onChange={filterBySearch}
+            className="w-100"
+          />
+        </Col>
 
-      <div className="row justify-content-center mt-5">
+        <Col xs={24} sm={12} md={6}>
+          <Select
+            value={type}
+            onChange={filterByType}
+            className="w-100"
+          >
+            <Option value="all">All</Option>
+            <Option value="delux">Delux</Option>
+            <Option value="non-delux">Non-Delux</Option>
+          </Select>
+        </Col>
+      </Row>
+
+      <div className="row justify-content-center mt-4">
         {loading ? (
           <Loader />
+        ) : error ? (
+          <Error />
         ) : (
           rooms.map((room) => (
-            <div className="col-md-9 mt-2" key={`${room._id}-${fromdate}-${todate}`}>
+            <div className="col-md-9 mt-3" key={`${room._id}-${fromdate}-${todate}`}>
               <Rooms room={room} fromdate={fromdate} todate={todate} />
             </div>
           ))
-        )  }
+        )}
       </div>
     </div>
   );
 }
-                               
 
 export default Homescreen;

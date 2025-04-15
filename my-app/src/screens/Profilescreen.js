@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Tabs, message } from 'antd';
+import { Tabs, message, Tag } from 'antd';
 import axios from 'axios';
 import Loader from '../components/Loader';
 import Error from '../components/Error';
 import Swal from 'sweetalert2';
-import { Divider, Flex, Tag } from 'antd';
+import { useNavigate } from 'react-router-dom';  // <-- Using useNavigate for better routing
 
 const { TabPane } = Tabs;
 
@@ -41,8 +41,12 @@ function MyBookings() {
         roomid,
       });
 
-      await Swal.fire('Congrats', 'Your booking has been cancelled', 'success');
-      window.location.reload();
+      Swal.fire('Congrats', 'Your booking has been cancelled', 'success');
+
+      // Update bookings state to remove canceled booking without reloading the page
+      setBookings(prevBookings => prevBookings.filter(booking => booking._id !== bookingid));
+
+      setLoading(false);
     } catch (error) {
       console.log(error);
       setLoading(false);
@@ -62,7 +66,11 @@ function MyBookings() {
             <p><b>Check In:</b> {booking.fromdate}</p>
             <p><b>Check Out:</b> {booking.todate}</p>
             <p><b>Amount:</b> ₹{booking.totalamount}</p>
-            <p><b>Status:</b> {booking.status === 'cancelled' ? (<Tag color="red">CANCELLED</Tag>) : <Tag color="green">CONFIRMED</Tag>}</p>
+            <p><b>Status:</b> {booking.status === 'cancelled' ? (
+              <Tag color="red">CANCELLED</Tag>
+            ) : (
+              <Tag color="green">CONFIRMED</Tag>
+            )}</p>
 
             {booking.status === 'booked' && (
               <div className='text-right'>
@@ -84,12 +92,13 @@ function MyBookings() {
 
 function Profilescreen() {
   const user = JSON.parse(localStorage.getItem('currentUser'));
+  const navigate = useNavigate();  // <-- useNavigate for redirect
 
   useEffect(() => {
     if (!user) {
-      window.location.href = '/login';
+      navigate('/login');  // <-- Redirect to login if no user is found
     }
-  }, []);
+  }, [user, navigate]);
 
   return (
     <div className='ml-3 mt-3'>
