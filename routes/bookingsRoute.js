@@ -26,8 +26,7 @@ router.post("/bookroom", async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:3000/cancel`,
+      success_url: `http://hotel-room-booking-iqmv.vercel.app/success?session_id={CHECKOUT_SESSION_ID}`,
       metadata: {
         roomid: room._id,
         userid,
