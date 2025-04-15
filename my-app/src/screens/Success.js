@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Loader from '../components/Loader';
 import Error from '../components/Error';
-import Swal from 'sweetalert2'; // ✅ Make sure it's 'Swal', not 'swal'
+import Swal from 'sweetalert2';
 
 function Success() {
   const location = useLocation();
-  const navigate = useNavigate(); // ✅ This was missing
+  const navigate = useNavigate();
 
   const queryParams = new URLSearchParams(location.search);
   const sessionId = queryParams.get('session_id');
@@ -16,18 +16,18 @@ function Success() {
   const [error, setError] = useState(false);
   const [booking, setBooking] = useState(null);
 
+  const hasRunRef = useRef(false);
 
   useEffect(() => {
-    if (!sessionId) return;
-
-    let hasRun = false;
+    if (!sessionId || hasRunRef.current) return;
+    hasRunRef.current = true;
 
     const confirmBooking = async () => {
-      if (hasRun) return;
-      hasRun = true;
-
       try {
-        const response = await axios.post('https://hotel-room-booking-1.onrender.com/api/bookings/confirm-booking', { session_id: sessionId });
+        const response = await axios.post(
+          'https://hotel-room-booking-1.onrender.com/api/bookings/confirm-booking',
+          { session_id: sessionId }
+        );
         setBooking(response.data.booking);
         setLoading(false);
 
@@ -35,10 +35,10 @@ function Success() {
           title: '🎉 Congratulations!',
           text: 'Your booking has been successfully completed.',
           icon: 'success',
-          confirmButtonText: 'Okay'
+          confirmButtonText: 'Okay',
         });
       } catch (err) {
-        console.error("Error confirming booking:", err);
+        console.error('Error confirming booking:', err);
         setError(true);
         setLoading(false);
       }
@@ -51,23 +51,23 @@ function Success() {
   if (error) return <Error />;
 
   return (
-    <div className="m-5">
-      <div className="bs">
-        <h2>🎉 Booking Successful!</h2>
-        <hr />
-        <h4>Thank you for your booking, {booking.userid}</h4>
-        <p><strong>Room:</strong> {booking.room}</p>
-        <p><strong>From:</strong> {booking.fromdate}</p>
-        <p><strong>To:</strong> {booking.todate}</p>
-        <p><strong>Total Days:</strong> {booking.totaldays}</p>
-        <p><strong>Total Amount:</strong> ₹{booking.totalamount}</p>
-        <p><strong>Transaction ID:</strong> {booking.transactionId}</p>
-  
-        <button className="btn btn-primary mt-3" onClick={() => navigate('/home')}>
-          ⬅️ Return to Home
-        </button>
-      </div>
-    </div>
+    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+  <div className="bs text-center p-4 shadow-lg" style={{ maxWidth: '500px', width: '100%' }}>
+    <h2 className="mb-3">🎉 Booking Successful!</h2>
+    <hr />
+    <h4>Thank you for your booking, {booking.userid}</h4>
+    <p><strong>Room:</strong> {booking.room}</p>
+    <p><strong>From:</strong> {booking.fromdate}</p>
+    <p><strong>To:</strong> {booking.todate}</p>
+    <p><strong>Total Days:</strong> {booking.totaldays}</p>
+    <p><strong>Total Amount:</strong> ₹{booking.totalamount}</p>
+    <p><strong>Transaction ID:</strong> {booking.transactionId}</p>
+
+    <button className="btn btn-primary mt-4" onClick={() => navigate('/home')}>
+      ⬅️ Return to Home
+    </button>
+  </div>
+</div>
   );
 }  
 
