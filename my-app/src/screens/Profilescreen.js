@@ -18,7 +18,7 @@ function MyBookings() {
     async function fetchBookings() {
       try {
         setLoading(true);
-        const response = await axios.post('/api/bookings/getbookingsbyuserid', {
+        const response = await axios.post('https://hotel-room-booking-1.onrender.com/api/bookings/getbookingsbyuserid', {
           userid: user._id,
         });
         setBookings(response.data);
@@ -36,7 +36,7 @@ function MyBookings() {
   async function cancelBooking(bookingid, roomid) {
     try {
       setLoading(true);
-      await axios.post('/api/bookings/cancelbooking', {
+      await axios.post('https://hotel-room-booking-1.onrender.com/api/bookings/cancelbooking', {
         bookingid,
         roomid,
       });

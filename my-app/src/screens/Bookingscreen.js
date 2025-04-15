@@ -30,7 +30,7 @@ function Bookingscreen() {
     const fetchRoomDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.post('/api/rooms/getroombyid', { roomid });
+        const response = await axios.post('https://hotel-room-booking-1.onrender.com/api/rooms/getroombyid', { roomid });
         setRoom(response.data);
         setLoading(false);
       } catch (err) {
@@ -65,7 +65,7 @@ function Bookingscreen() {
     };
 
     try {
-      const res = await axios.post('/api/bookings/bookroom', bookingDetails);
+      const res = await axios.post('https://hotel-room-booking-1.onrender.com/api/bookings/bookroom', bookingDetails);
       const sessionId = res.data.sessionId;
 
       const stripe = window.Stripe("pk_test_51Qyoj2GLsfv5VgOEMX14htOVSOnWxQvFFOaohkPaLYLyZuxZRh6CvLVFSayfFdPrsIS4C5kTGdAkmMFHye1XJ7Ka00eDvpBAja");

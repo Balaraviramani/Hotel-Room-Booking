@@ -31,7 +31,7 @@ function Homescreen() {
     const fetchRooms = async () => {
       try {
         setLoading(true);
-        const data = (await axios.get('/api/rooms/getallrooms')).data;
+        const data = (await axios.get('https://hotel-room-booking-1.onrender.com/api/rooms/getallrooms')).data;
         setRooms(data);
         setduplicaterooms(data);
         setLoading(false);

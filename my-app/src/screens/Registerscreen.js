@@ -32,7 +32,7 @@ function Registerscreen() {
 
         try {
             setLoading(true);
-            const result = (await axios.post('/api/users/register', user)).data;
+            const result = (await axios.post('https://hotel-room-booking-1.onrender.com/api/users/register', user)).data;
             setLoading(false);
             setSuccess(true);
             notification.success({

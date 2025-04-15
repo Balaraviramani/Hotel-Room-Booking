@@ -27,7 +27,7 @@ function Success() {
       hasRun = true;
 
       try {
-        const response = await axios.post('/api/bookings/confirm-booking', { session_id: sessionId });
+        const response = await axios.post('https://hotel-room-booking-1.onrender.com/api/bookings/confirm-booking', { session_id: sessionId });
         setBooking(response.data.booking);
         setLoading(false);
 

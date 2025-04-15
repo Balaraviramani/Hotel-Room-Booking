@@ -71,7 +71,7 @@ export function Bookings() {
     useEffect(() => {
         async function fetchBookings() {
             try {
-                const { data } = await axios.get('/api/bookings/getallbookings');
+                const { data } = await axios.get('https://hotel-room-booking-1.onrender.com/api/bookings/getallbookings');
                 setbookings(data);
                 setloading(false);
             } catch (error) {
@@ -106,7 +106,7 @@ export function Rooms() {
     useEffect(() => {
         async function fetchRooms() {
             try {
-                const { data } = await axios.get('/api/rooms/getallrooms');
+                const { data } = await axios.get('https://hotel-room-booking-1.onrender.com/api/rooms/getallrooms');
                 setrooms(data);
                 setloading(false);
             } catch (error) {
@@ -136,7 +136,7 @@ export function Users() {
     useEffect(() => {
         async function fetchUsers() {
             try {
-                const { data } = await axios.get('/api/users/getallusers');
+                const { data } = await axios.get('https://hotel-room-booking-1.onrender.com/api/users/getallusers');
                 setusers(data);
                 setloading(false);
             } catch (error) {
@@ -174,7 +174,7 @@ export function AddRoom() {
 
         try {
             setloading(true);
-            await axios.post('/api/rooms/addroom', newroom);
+            await axios.post('https://hotel-room-booking-1.onrender.com/api/rooms/addroom', newroom);
             setloading(false);
             Swal.fire('Success', 'Room added successfully', 'success').then(() => {
                 window.location.href = '/home';

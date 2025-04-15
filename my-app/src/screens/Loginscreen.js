@@ -19,7 +19,7 @@ function Loginscreen() {
         };
         try {
             setLoading(true);
-            const result = (await axios.post('/api/users/login', user)).data;
+            const result = (await axios.post('https://hotel-room-booking-1.onrender.com/api/users/login', user)).data;
             setLoading(false);
             localStorage.setItem('currentUser', JSON.stringify(result));
             window.location.href = '/home';
